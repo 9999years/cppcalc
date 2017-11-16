@@ -11,6 +11,31 @@ enum class Operator: char {
 variant<double, Operation> Operand;
 
 class Operation {
+	double operate() {
+		switch(binoperator):
+		case(Operator::add):
+			return left + right;
+		case(Operator::subtract):
+			return left - right;
+		case(Operator::multiply):
+			return left * right;
+		case(Operator::divide):
+			return left / right;
+	}
+
+	double evaluate_side(Operand op) {
+		if(std::holds_alternative<Operation>(op)) {
+			// so what i WANT this to do is evaluate the lhs,
+			// destroying the Operation field and replacing it with
+			// a double in the variant
+			// what it does is, im pretty sure, not that
+			return op.evaluate();
+		} else {
+			// double
+			return op;
+		}
+	}
+
 public:
 	Operand left;
 	Operand right;
@@ -25,8 +50,9 @@ public:
 	}
 
 	double evaluate() {
-		if(std::holds_alternative<double>(left)) {
-		}
+		left = evaluate_side(left);
+		right = evaluate_side(left);
+		return operate();
 	}
 };
 
