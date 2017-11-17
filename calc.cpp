@@ -1,19 +1,13 @@
 #include <iostream>
-#include <variant>
-
-enum class Operator: char {
-	add      = '+',
-	subtract = '-',
-	multiply = '×',
-	divide   = '⁄',
-};
-
-variant<double, Operation> Operand;
+// using matt park's implementation, which should land in the clang mainstream
+// at some point. v1.2.2 if it matters
+// https://github.com/mpark/variant/releases
+#include <variant.h>
 
 class Operation {
 protected:
 	double operate() {
-		switch(binoperator):
+		switch(binoperator) {
 		case(Operator::add):
 			return left + right;
 		case(Operator::subtract):
@@ -22,35 +16,42 @@ protected:
 			return left * right;
 		case(Operator::divide):
 			return left / right;
+		}
 	}
 
 	double evaluate_side(Operand op) {
 		// so what i WANT this to do is evaluate the operator, destroying
 		// the Operation field and replacing it with a double in the
 		// variant.  what it does is, im pretty sure, not that
-		return std::holds_alternative<Operation>(op)
+		return mpark::holds_alternative<Operation>(op)
 			// op is an operation
 			? op.evaluate()
 			// op is a double
 			: op;
 	}
 public:
+	enum class Operator: char {
+		add      = '+',
+		subtract = '-',
+		multiply = '×',
+		divide   = '/',
+	};
+	typedef mpark::variant<double, Operation> Operand;
 	Operand left;
 	Operand right;
 	Operator binoperator;
 
-	M(std::string expr) {
+	Operation(std::string expr) {
 	}
 
-	M(Operand lhs, Operand rhs) {
+	Operation(Operand lhs, Operand rhs) {
 		left = lhs;
 		right = rhs;
 	}
 
-	~M() {
+	~Operation() {
 		delete left;
 		delete right;
-		delete binoperator;
 	}
 
 	double evaluate() {
