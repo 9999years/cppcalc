@@ -11,6 +11,7 @@ enum class Operator: char {
 variant<double, Operation> Operand;
 
 class Operation {
+protected:
 	double operate() {
 		switch(binoperator):
 		case(Operator::add):
@@ -24,18 +25,15 @@ class Operation {
 	}
 
 	double evaluate_side(Operand op) {
-		if(std::holds_alternative<Operation>(op)) {
-			// so what i WANT this to do is evaluate the lhs,
-			// destroying the Operation field and replacing it with
-			// a double in the variant
-			// what it does is, im pretty sure, not that
-			return op.evaluate();
-		} else {
-			// double
-			return op;
-		}
+		// so what i WANT this to do is evaluate the operator, destroying
+		// the Operation field and replacing it with a double in the
+		// variant.  what it does is, im pretty sure, not that
+		return std::holds_alternative<Operation>(op)
+			// op is an operation
+			? op.evaluate()
+			// op is a double
+			: op;
 	}
-
 public:
 	Operand left;
 	Operand right;
@@ -47,6 +45,12 @@ public:
 	M(Operand lhs, Operand rhs) {
 		left = lhs;
 		right = rhs;
+	}
+
+	~M() {
+		delete left;
+		delete right;
+		delete binoperator;
 	}
 
 	double evaluate() {
