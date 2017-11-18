@@ -33,9 +33,9 @@ protected:
 		// variant.  what it does is, im pretty sure, not that
 		return std::holds_alternative<Operation>(op)
 			// op is an operation
-			? op.evaluate()
+			? std::get<Operation>(op).evaluate()
 			// op is a double
-			: op;
+			: std::get<double>(op);
 	}
 public:
 	Operand left;
@@ -46,15 +46,15 @@ public:
 	}
 
 	Operation(Operand left_, Operand right_, Operator binoperator_) {
-		left = left_;
-		right = right_;
-		binoperator = binoperator_;
+		left        = &left_;
+		right       = &right_;
+		binoperator = &binoperator_;
 	}
 
-	~Operation() {
-		delete left;
-		delete right;
-	}
+	//~Operation() {
+		//delete &left;
+		//delete &right;
+	//}
 
 	double evaluate() {
 		left  = evaluate_side(left);
@@ -65,6 +65,6 @@ public:
 
 int main(int argc, const char** argv) {
 	Operation op = new Operation(3, 4, Operation::Operator::times);
-	cout << "Evaluating 3 * 4: " << op.evaluate();
+	std::cout << "Evaluating 3 * 4: " << op.evaluate();
 	return 0;
 }
