@@ -1,5 +1,6 @@
 CFLAGS+=-std=c++17
-CC=clang++
+# must support c++17 for real (variants)
+CC=g++
 
 calc: calc.cpp
 	$(CC) $(CFLAGS) -o $@ $^
