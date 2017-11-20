@@ -9,18 +9,15 @@ std::ostream &operator<< (std::ostream &os, Operation::Operator const &op) {
 }
 
 std::ostream &operator<< (std::ostream &os, Operation::Operand const &op) {
-	std::visit(std::make_tuple(
-		[&](Operation::Operator *op) { os << *op; },
-		[&](double op)               { os << op; },
-		[&](auto arg)                { os << "UH OH!!!!"; }
-	), op);
-	//if(std::holds_alternative<Operation>(op)) {
-		//// operation, we recurse
-		//os << std::get<Operation>(op);
-	//} else if(std::holds_alternative<double>(op)){
-		//// double
-		//os << std::get<double>(op);
-	//}
+	if(op.valueless_by_exception()) {
+		os << "[VALUELESS OPERATOR]";
+	} else {
+		std::visit(overloaded {
+			[&](Operation::Operator &o) { os << o; },
+			[&](double o)               { os << o; },
+			[&](auto arg)               { }
+		}, op);
+	}
 	return os;
 }
 
@@ -29,20 +26,10 @@ std::ostream &operator<< (std::ostream &os, Operation const &op) {
 	return os;
 }
 
-std::string type(Operation::Operand o) {
-	return std::holds_alternative<Operation>(o)
-		// op is an operation
-		? "operation"
-		// op is a double
-		: "double";
-}
-
 double Operation::operate() {
 	double dleft, dright;
 	dleft = std::get<double>(*left);
-	dleft = std::get<double>(*right);
-	std::cout << "left:  " << dleft << "\n";
-	std::cout << "right: " << dright << "\n";
+	dright = std::get<double>(*right);
 	switch(binoperator) {
 	case(Operator::add):
 		return dleft + dright;
@@ -52,10 +39,12 @@ double Operation::operate() {
 		return dleft * dright;
 	case(Operator::divide):
 		return dleft / dright;
+	default:
+		return 0;
 	}
 }
 
-double Operation::evaluate_side(Operand op) {
+double Operation::evaluate_side(Operand &op) {
 	// so what i WANT this to do is evaluate the operator, destroying
 	// the Operation field and replacing it with a double in the
 	// variant.  what it does is, im pretty sure, not that
@@ -70,8 +59,8 @@ Operation::Operation(std::string expr) {
 }
 
 Operation::Operation(Operand left_, Operand right_, Operator binoperator_) {
-	left  = &left_;
-	right = &right_;
+	left  = new Operand(left_);
+	right = new Operand(right_);
 	binoperator = binoperator_;
 }
 
@@ -85,15 +74,15 @@ double Operation::evaluate() {
 	std::cout << this << "\n";
 	//std::cout << "left:  " << left << "\n";
 	//std::cout << "right: " << right << "\n";
-	left  = new Operand(evaluate_side(*left));
-	right = new Operand(evaluate_side(*right));
+	*left  = evaluate_side(*left);
+	*right = evaluate_side(*right);
 	return operate();
 }
 
 int main(int argc, const char** argv) {
 	Operation *op = new Operation(3, 4, Operation::Operator::multiply);
-	std::cout << "Operation: " << *op << "\n";
-	std::cout << "left: " << op->left << "\n";
+	//std::cout << "Operation: " << *op << "\n";
+	std::cout << "left: " << *op->left << "\n";
 	//std::cout << "Evaluating 3 * 4: " << op->evaluate();
 	return 0;
 }

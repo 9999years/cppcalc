@@ -4,6 +4,9 @@
 #ifndef CALC_HPP
 #define CALC_HPP
 
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 class Operation {
 public:
 	enum class Operator: char {
@@ -17,7 +20,7 @@ public:
 
 protected:
 	double operate();
-	double evaluate_side(Operand op);
+	double evaluate_side(Operand& op);
 
 public:
 	Operand* left;
@@ -25,7 +28,6 @@ public:
 	Operator binoperator;
 
 	Operation(std::string expr);
-
 	Operation(Operand left_, Operand right_, Operator binoperator_);
 
 	~Operation();

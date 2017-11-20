@@ -1,5 +1,4 @@
-CFLAGS+=-std=c++17
-# must support c++17 for real (variants)
+CFLAGS+=-Wall -std=c++17 $(EXTRA_ARGS)
 CC=g++
 
 calc: calc.cpp
