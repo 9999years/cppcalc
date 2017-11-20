@@ -70,10 +70,6 @@ Operation::~Operation() {
 }
 
 double Operation::evaluate() {
-	std::cout << "\n";
-	std::cout << this << "\n";
-	//std::cout << "left:  " << left << "\n";
-	//std::cout << "right: " << right << "\n";
 	*left  = evaluate_side(*left);
 	*right = evaluate_side(*right);
 	return operate();
@@ -81,8 +77,7 @@ double Operation::evaluate() {
 
 int main(int argc, const char** argv) {
 	Operation *op = new Operation(3, 4, Operation::Operator::multiply);
-	//std::cout << "Operation: " << *op << "\n";
-	std::cout << "left: " << *op->left << "\n";
-	//std::cout << "Evaluating 3 * 4: " << op->evaluate();
+	std::cout << "Operation: " << *op << "\n";
+	std::cout << "Evaluating: " << op->evaluate();
 	return 0;
 }
