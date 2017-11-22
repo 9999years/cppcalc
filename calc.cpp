@@ -104,7 +104,7 @@ int main(int argc, const char** argv) {
 	//Operation *op = new Operation(6, 8, Operation::Operator::subtract);
 	std::cout << "lhs: " << *lhs << "\n";
 	// segfaults AFTER printing this
-	std::cout << "lhs: " << *op->left << "\n";
+	std::cout << "lhs: " << *(op->left) << "\n";
 	std::cout << "rhs: " << *rhs << "\n";
 	std::cout << "rhs: " << *op->right << "\n";
 	std::cout << "Operation: " << *op << "\n";
