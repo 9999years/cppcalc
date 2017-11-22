@@ -1,10 +1,24 @@
 #include <iostream>
 #include <variant>
 #include <tuple>
+
 #include "calc.hpp"
+#include "parser.hpp"
 
 std::ostream &operator<< (std::ostream &os, Operation::Operator const &op) {
-	os << static_cast<char>(op);
+	return os << static_cast<char>(op);
+}
+
+std::ostream &operator<< (std::ostream &os, Operation const &op) {
+	// (lhs op rhs)
+	os
+		<< '('
+		<< *op.left
+		<< ' '
+		<< op.binoperator
+		<< ' '
+		<< *op.right
+		<< ')';
 	return os;
 }
 
@@ -13,22 +27,19 @@ std::ostream &operator<< (std::ostream &os, Operation::Operand const &op) {
 		os << "[VALUELESS OPERATOR]";
 	} else {
 		std::visit(overloaded {
-			[&](Operation::Operator &o) { os << o; },
-			[&](double o)               { os << o; },
-			[&](auto arg)               { }
+			[&](Operation o) { os << o; },
+			[&](double o)    { os << o; },
+			[&](auto o)      { },
 		}, op);
 	}
 	return os;
 }
 
-std::ostream &operator<< (std::ostream &os, Operation const &op) {
-	os << *op.left << ' ' << op.binoperator << ' ' << *op.right;
-	return os;
-}
-
 double Operation::operate() {
 	double dleft, dright;
-	dleft = std::get<double>(*left);
+	*left  = evaluate_side(*left);
+	*right = evaluate_side(*right);
+	dleft  = std::get<double>(*left);
 	dright = std::get<double>(*right);
 	switch(binoperator) {
 	case(Operator::add):
@@ -45,9 +56,7 @@ double Operation::operate() {
 }
 
 double Operation::evaluate_side(Operand &op) {
-	// so what i WANT this to do is evaluate the operator, destroying
-	// the Operation field and replacing it with a double in the
-	// variant.  what it does is, im pretty sure, not that
+	// evaluates the operator, returning the result
 	return std::holds_alternative<Operation>(op)
 		// op is an operation
 		? std::get<Operation>(op).evaluate()
@@ -55,7 +64,22 @@ double Operation::evaluate_side(Operand &op) {
 		: std::get<double>(op);
 }
 
-Operation::Operation(std::string expr) {
+Operation::Operation(Operand &left_, Operand &right_, Operator binoperator_) {
+	left  = new Operand(left_);
+	right = new Operand(right_);
+	binoperator = binoperator_;
+}
+
+Operation::Operation(Operand *left_, Operand *right_, Operator binoperator_) {
+	left  = new Operand(*left_);
+	right = new Operand(*right_);
+	binoperator = binoperator_;
+}
+
+Operation::Operation(Operation *op) {
+	left  = new Operand(*op->left);
+	right = new Operand(*op->right);
+	binoperator = op->binoperator;
 }
 
 Operation::Operation(Operand left_, Operand right_, Operator binoperator_) {
@@ -70,14 +94,21 @@ Operation::~Operation() {
 }
 
 double Operation::evaluate() {
-	*left  = evaluate_side(*left);
-	*right = evaluate_side(*right);
 	return operate();
 }
 
 int main(int argc, const char** argv) {
-	Operation *op = new Operation(3, 4, Operation::Operator::multiply);
+	Operation *lhs = new Operation(3, 4, Operation::Operator::multiply);
+	Operation *rhs = new Operation(6, 2, Operation::Operator::multiply);
+	Operation *op = new Operation(lhs, rhs, Operation::Operator::subtract);
+	//Operation *op = new Operation(6, 8, Operation::Operator::subtract);
+	std::cout << "lhs: " << *lhs << "\n";
+	// segfaults AFTER printing this
+	std::cout << "lhs: " << *op->left << "\n";
+	std::cout << "rhs: " << *rhs << "\n";
+	std::cout << "rhs: " << *op->right << "\n";
 	std::cout << "Operation: " << *op << "\n";
-	std::cout << "Evaluating: " << op->evaluate();
+	//std::cout << "Evaluating: " << op->evaluate();
+	//Operation *op = new Parser("3 * 4").extract();
 	return 0;
 }

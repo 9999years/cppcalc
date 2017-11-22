@@ -1,26 +1,13 @@
+#include <vector>
+
 #include "calc.hpp"
 
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
 class Parser {
-protected:
-	// left-most empty leaf on the tree
-	Operation::Operand* active_leaf;
-	Precedence head_precedence;
-	typedef char Token;
-	Token[] dat;
-	Precedence precedence(Token op);
-	Operation::Operator binoperator(Precedence prec);
-	enum TokenType {
-		number,
-		binoperator,
-		space,
-		invalid
-	};
-	TokenType type(Token tok);
 public:
-	enum Precedence {
+	enum class Precedence {
 		parenthesis,
 		exponents,
 		multiplication,
@@ -29,6 +16,22 @@ public:
 		subtraction,
 		unknown
 	};
+protected:
+	// left-most empty leaf on the tree
+	Operation::Operand* active_leaf;
+	Precedence head_precedence;
+	typedef char Token;
+	Precedence precedence(Token op);
+	Operation::Operator binoperator(Token tok);
+	enum class TokenType {
+		number,
+		binoperator,
+		space,
+		invalid
+	};
+	TokenType type(Token tok);
+	std::vector<Token> dat;
+public:
 	// tree head
 	Operation* head;
 
@@ -37,6 +40,6 @@ public:
 	Parser(std::string);
 	~Parser();
 	Operation extract();
-}
+};
 
 #endif

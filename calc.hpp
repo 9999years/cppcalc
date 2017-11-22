@@ -29,15 +29,18 @@ public:
 
 	Operation(std::string expr);
 	Operation(Operand left_, Operand right_, Operator binoperator_);
+	Operation(Operand *left_, Operand *right_, Operator binoperator_);
+	Operation(Operand &left_, Operand &right_, Operator binoperator_);
+	Operation(Operation *op);
 
 	~Operation();
 
 	double evaluate();
 };
 
-std::ostream &operator<< (std::ostream &os, Operation::Operator const &op);
-std::ostream &operator<< (std::ostream &os, Operation::Operand const &op);
-std::ostream &operator<< (std::ostream &os, Operation const &op);
+std::ostream &operator<< (std::ostream &os, const Operation::Operator &op);
+std::ostream &operator<< (std::ostream &os, const Operation::Operand &op);
+std::ostream &operator<< (std::ostream &os, const Operation &op);
 
 int main(int argc, const char** argv);
 
