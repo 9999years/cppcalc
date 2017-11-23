@@ -19,8 +19,8 @@ public:
 	typedef std::variant<double, Operation> Operand;
 
 protected:
-	double operate();
-	double evaluate_side(Operand& op);
+	double operate(double dleft, double dright);
+	double evaluate_side(Operand *op);
 
 public:
 	Operand* left;
