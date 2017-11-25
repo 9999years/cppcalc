@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 
 #include "calc.hpp"
 
@@ -20,26 +21,29 @@ protected:
 	// left-most empty leaf on the tree
 	Operation::Operand* active_leaf;
 	Precedence head_precedence;
-	typedef char Token;
-	Precedence precedence(Token op);
-	Operation::Operator binoperator(Token tok);
+	Precedence precedence(char op);
+	Operation::Operator binoperator(char tok);
 	enum class TokenType {
 		number,
 		binoperator,
 		space,
 		invalid
 	};
-	TokenType type(Token tok);
-	std::vector<Token> dat;
+	TokenType type(char tok);
+	std::vector<char> dat_v;
+	void dat(const char* dat);
+	void init();
 public:
 	// tree head
 	Operation* head;
+	char dat();
 
 	void reset();
-	void set(std::string);
-	Parser(std::string);
+	Parser(std::string dat);
+	Parser(char* dat);
 	~Parser();
-	Operation extract();
+	Operation& extract();
 };
 
+std::ostream &operator<< (std::ostream &os, const Parser &parser);
 #endif
