@@ -1,6 +1,7 @@
 #include <iostream>
 #include <variant>
 #include <tuple>
+#include <cstring>
 
 #include "calc.hpp"
 #include "parser.hpp"
@@ -75,15 +76,48 @@ Operation::Operation(Operand left_, Operand right_, Operator binoperator_) {
 
 Operation::~Operation() = default;
 
+std::string join(int argc, const char** argv) {
+	// require 2 args, start at 1 in iteration to avoid program name in
+	// output string
+	if(argc < 2) {
+		return "";
+	}
+
+	std::string &ret = *new std::string();
+	// n elements of the same length + a space for each is probably a
+	// decent estimate of the space we'll need
+	ret.reserve(argc * (std::strlen(argv[1]) + 1));
+	for(int i = 1; i < argc; i++) {
+		ret += argv[i];
+		ret += ' ';
+	}
+	ret.pop_back();
+	return ret;
+}
+
 int main(int argc, const char** argv) {
-	Operation &lhs = *new Operation(3, 40, Operation::Operator::multiply);
-	Operation &rhs = *new Operation(6, 2, Operation::Operator::multiply);
-	Operation &op = *new Operation(
-		lhs,
-		rhs,
-		Operation::Operator::subtract);
-	std::cout << "Operation: " << op << "\n";
-	std::cout << "Evaluating: " << op.evaluate();
-	//Operation *op = new Parser("3 * 4").extract();
+	//Operation &lhs = *new Operation(3, 40, Operation::Operator::multiply);
+	// 3 * 40 - 6 * 2
+	// equiv. to
+	/*     -
+	 *    / \
+	 *   *   *
+	 *  /|   |\
+	 * 3 40  6 2
+	 * when properly parsed, as opposed to
+	 *       *
+	 *      / \
+	 *     -   2
+	 *    / \
+	 *   *   6
+	 *  / \
+	 * 3  40
+	 * when parsed left-to-right
+	 */
+	Parser &parser = *new Parser(join(argc, argv));
+	//std::cout << "Parser: " << parser << "\n";
+	//std::cout << "(Parsing)\n";
+	//Operation &expr = parser.extract();
+	//std::cout << "Parsed expression: " << expr;
 	return 0;
 }

@@ -1,9 +1,15 @@
 #include <vector>
+#include <string>
+#include <cstring>
 
 #include "calc.hpp"
 #include "parser.hpp"
 
-TokenType Parser::type(Token tok) {
+std::ostream &operator<< (std::ostream &os, const Parser &parser) {
+	return os << "Parser[data=`" << parser.dat() << "`]";
+}
+
+TokenType Parser::type(char tok) {
 	switch(tok) {
 		case '1':
 		case '2':
@@ -33,7 +39,7 @@ TokenType Parser::type(Token tok) {
 	}
 }
 
-Parser::precedence(Token op) {
+Parser::precedence(char op) {
 	switch(op) {
 		case '*':
 			return Parser::Precedence::multiplication;
@@ -48,7 +54,7 @@ Parser::precedence(Token op) {
 	}
 }
 
-Parser::binoperator(Token op) {
+Parser::binoperator(char op) {
 	switch(op) {
 		case '*':
 			return Operation::Operator::multiply;
@@ -63,7 +69,7 @@ Parser::binoperator(Token op) {
 	}
 }
 
-Parser::parse_tok(Token tok) {
+Parser::parse_tok(char tok) {
 	switch(type(tok)) {
 		case TokenType::Number:
 			break;
@@ -83,18 +89,33 @@ Parser::parse_tok(Token tok) {
 	}
 }
 
-Parser::Parser(Token[] dat_) {
-	dat = dat_;
+Parser::init() {
+	dat_v = new std::vector<char>();
 }
 
-Parser::~Parser() {
-	delete active_leaf;
-	delete head;
+Parser::dat(const char* dat) {
+	dat_v.assign(std::strlen(dat), dat);
 }
 
-Operation Parser::extract() {
-	for(Token tok : dat) {
-		std::vector<Token> unit = new std::vector<>();
+Parser::dat() {
+	return &std::string(dat_v.data());
+}
+
+Parser::Parser(const std::string dat) {
+	init();
+	dat(dat.c_str());
+}
+
+Parser::Parser(char* dat) {
+	init();
+	dat(dat);
+}
+
+Parser::~Parser() = default;
+
+Operation& Parser::extract() {
+	for(char tok : dat()) {
+		std::vector<char> unit = new std::vector<>();
 		switch(type(tok)):
 			case TokenType::number:
 				unit.push_back(tok);
@@ -110,4 +131,5 @@ Operation Parser::extract() {
 					+ tok + "`!"
 				);
 	}
+	return *new Operation();
 }
